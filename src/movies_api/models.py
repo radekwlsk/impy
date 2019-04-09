@@ -1,3 +1,5 @@
+from django.contrib.postgres.fields import JSONField
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 
 
@@ -5,7 +7,13 @@ class Movie(models.Model):
     title = models.CharField(max_length=256)
     created = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
-    details = models.TextField()
+
+    details = JSONField(encoder=DjangoJSONEncoder)
+
+    released = models.DateField(blank=True)
+    country = models.CharField(max_length=16, blank=True)
+    metascore = models.PositiveSmallIntegerField(blank=True)
+    imdb_rating = models.FloatField(blank=True)
 
     def __str__(self):
         return self.title
