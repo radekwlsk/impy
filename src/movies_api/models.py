@@ -1,10 +1,12 @@
-from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields import JSONField, ArrayField
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 
 
 class Movie(models.Model):
-    title = models.CharField(max_length=256)
+    tags = ArrayField(
+        models.CharField(max_length=64, unique=True)
+    )
     created = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
 
@@ -16,7 +18,7 @@ class Movie(models.Model):
     imdb_rating = models.FloatField(blank=True)
 
     def __str__(self):
-        return self.title
+        return self.details['title']
 
 
 class Comment(models.Model):
