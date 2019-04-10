@@ -79,6 +79,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'impy.wsgi.application'
 
+TEST_RUNNER = 'pytest_runner.PytestTestRunner'
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases

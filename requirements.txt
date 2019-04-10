@@ -4,5 +4,7 @@ djangorestframework==3.9.2
 Markdown==3.1
 omdb==0.10.1
 psycopg2-binary==2.8.1
+pytest==4.4.0
+pytest-django==3.4.8
 pytz==2018.9
 sqlparse==0.3.0
