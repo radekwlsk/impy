@@ -4,6 +4,8 @@ from movies_api import views
 
 router = routers.DefaultRouter()
 router.register(r'movies', views.MovieViewSet)
+router.register(r'comments', views.CommentViewSet)
+router.register(r'top', views.TopMoviesViewSet, basename='top')
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
