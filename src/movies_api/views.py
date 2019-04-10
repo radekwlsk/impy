@@ -33,7 +33,10 @@ class MovieViewSet(mixins.CreateModelMixin,
             return Response({"error": "title query parameter is required"}, status=status.HTTP_400_BAD_REQUEST)
         client = OMDBClient(apikey=OMDB_KEY)
         response = client.title(title, media_type='movie')
-        real_title = response['title']
+        try:
+            real_title = response['title']
+        except KeyError:
+            return Response({"error": f"no movie found matching '{title}'"}, status=status.HTTP_404_NOT_FOUND)
         try:
             movie = Movie.objects.get(details__title=real_title)
             serializer = self.get_serializer(movie, data=request.data)
