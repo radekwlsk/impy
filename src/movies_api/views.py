@@ -28,13 +28,13 @@ class MovieViewSet(mixins.CreateModelMixin,
     filterset_class = MoviesFilterSet
 
     @staticmethod
-    def call_omdb_by_title(title):
+    def call_omdb(tag):
         client = OMDBClient(apikey=OMDB_KEY)
-        response = client.title(title, media_type='movie')
+        response = client.title(tag, media_type='movie')
         try:
             return response['title'], response
         except KeyError:
-            raise NotFound(f"no movie matching '{title}' found")
+            raise NotFound(f"no movie matching '{tag}' found")
 
     @staticmethod
     def get_title(request):
@@ -47,7 +47,7 @@ class MovieViewSet(mixins.CreateModelMixin,
             movie = Movie.objects.get(tags__contains=[tag])
             return movie, None
         except Movie.DoesNotExist:
-            real_title, response = self.call_omdb_by_title(tag)
+            real_title, response = self.call_omdb(tag)
             try:
                 movie = Movie.objects.get(details__title=real_title)
                 return movie, None
