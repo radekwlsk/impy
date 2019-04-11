@@ -4,6 +4,7 @@ from django.db.models import Count, Window, F, Case, When, IntegerField
 from django.db.models.functions import DenseRank
 from omdb import OMDBClient
 from rest_framework import viewsets, mixins, status
+from rest_framework.exceptions import NotFound, ParseError
 from rest_framework.response import Response
 
 from impy.settings import OMDB_KEY
@@ -26,24 +27,41 @@ class MovieViewSet(mixins.CreateModelMixin,
     serializer_class = MovieSerializer
     filterset_class = MoviesFilterSet
 
-    def create(self, request, *args, **kwargs):
-        try:
-            title = request.data['title'].lower()
-        except KeyError:
-            return Response({"error": "title query parameter is required"}, status=status.HTTP_400_BAD_REQUEST)
+    @staticmethod
+    def call_omdb_by_title(title):
         client = OMDBClient(apikey=OMDB_KEY)
         response = client.title(title, media_type='movie')
         try:
-            real_title = response['title']
+            return response['title'], response
         except KeyError:
-            return Response({"error": f"no movie found matching '{title}'"}, status=status.HTTP_404_NOT_FOUND)
+            raise NotFound(f"no movie matching '{title}' found")
+
+    @staticmethod
+    def get_title(request):
+        if 'title' not in request.data or request.data['title'] == "":
+            raise ParseError("title required in request body")
+        return request.data['title'].lower()
+
+    def get_movie_or_response(self, tag):
         try:
-            movie = Movie.objects.get(details__title=real_title)
-            serializer = self.get_serializer(movie, data=request.data)
-            http_status = status.HTTP_302_FOUND
+            movie = Movie.objects.get(tags__contains=[tag])
+            return movie, None
         except Movie.DoesNotExist:
+            real_title, response = self.call_omdb_by_title(tag)
+            try:
+                movie = Movie.objects.get(details__title=real_title)
+                return movie, None
+            except Movie.DoesNotExist:
+                return None, response
+
+    def create(self, request, *args, **kwargs):
+        tag = self.get_title(request)
+        movie, response = self.get_movie_or_response(tag)
+        serializer = self.get_serializer(movie, data=request.data)
+        if movie is not None:
+            http_status = status.HTTP_302_FOUND
+        else:
             setattr(self, 'omdb_response', response)
-            serializer = self.get_serializer(data=request.data)
             http_status = status.HTTP_201_CREATED
         serializer.is_valid(raise_exception=True)
         serializer.save()
