@@ -12,10 +12,12 @@ class Movie(models.Model):
 
     details = JSONField(encoder=DjangoJSONEncoder)
 
-    released = models.DateField(blank=True)
-    country = models.CharField(max_length=16, blank=True)
-    metascore = models.PositiveSmallIntegerField(blank=True)
-    imdb_rating = models.FloatField(blank=True)
+    released = models.DateField(null=True)
+    country = models.CharField(max_length=16, null=True)
+    metascore = models.PositiveSmallIntegerField(null=True)
+    imdb_rating = models.FloatField(null=True)
+
+    objects = MovieManager()
 
     def __str__(self):
         return self.details['title']
