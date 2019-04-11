@@ -98,13 +98,10 @@ class TopMoviesViewSet(mixins.ListModelMixin,
         if from_date > to_date:
             raise BadQueryError("defined date range has to be positive")
 
-        from_dt = datetime.combine(from_date, time.min)
-        to_dt = datetime.combine(to_date, time.max)
-
         queryset = Movie.objects.annotate(
             total_comments=Count(
                 Case(
-                    When(comments__created__range=(from_dt, to_dt), then=1),
+                    When(comments__created__range=(from_date, to_date), then=1),
                     output_field=IntegerField(),
                 )
             )

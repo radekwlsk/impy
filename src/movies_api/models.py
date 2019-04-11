@@ -26,4 +26,4 @@ class Movie(models.Model):
 class Comment(models.Model):
     movie_id = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='comments')
     text = models.TextField(max_length=256)
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateField(auto_now_add=True)
