@@ -1,6 +1,23 @@
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
+from django.db.models.functions import DenseRank
+
+
+class MovieManager(models.Manager):
+    def comments_ranking(self, from_date, to_date):
+        return self.annotate(
+            total_comments=models.Count(
+                models.Case(
+                    models.When(comments__created__range=(from_date, to_date), then=1),
+                    output_field=models.IntegerField(),
+                )
+            )
+        ).annotate(
+            rank=models.Window(
+                expression=DenseRank(), order_by=models.F('total_comments').desc()
+            )
+        )
 
 
 class Movie(models.Model):
