@@ -16,13 +16,24 @@ class MovieSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         tag = validated_data['title'].lower()
         response = self.context['view'].omdb_response
-        released = datetime.strptime(response['released'], "%d %b %Y").date()
+        try:
+            released = datetime.strptime(response['released'], "%d %b %Y").date()
+        except (ValueError, TypeError):
+            released = None
+        try:
+            metascore = int(response['metascore'])
+        except ValueError:
+            metascore = None
+        try:
+            imdb_rating = float(response['imdb_rating'])
+        except ValueError:
+            imdb_rating = None
         movie = Movie(
             tags=[tag],
             released=released,
             country=response['country'],
-            metascore=response['metascore'],
-            imdb_rating=response['imdb_rating'],
+            metascore=metascore,
+            imdb_rating=imdb_rating,
             details=response
             )
         movie.save()
