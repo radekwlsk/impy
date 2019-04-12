@@ -22,7 +22,7 @@ class MovieManager(models.Manager):
 
 class Movie(models.Model):
     tags = ArrayField(
-        models.CharField(max_length=64, unique=True)
+        models.CharField(max_length=128, unique=True)
     )
     created = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True)
@@ -30,7 +30,7 @@ class Movie(models.Model):
     details = JSONField(encoder=DjangoJSONEncoder)
 
     released = models.DateField(null=True)
-    country = models.CharField(max_length=16, null=True)
+    country = models.CharField(max_length=64, null=True)
     metascore = models.PositiveSmallIntegerField(null=True)
     imdb_rating = models.FloatField(null=True)
 
