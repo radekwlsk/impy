@@ -1,7 +1,5 @@
-from datetime import datetime, time, date
+from datetime import date
 
-from django.db.models import Count, Window, F, Case, When, IntegerField
-from django.db.models.functions import DenseRank
 from omdb import OMDBClient
 from rest_framework import viewsets, mixins, status
 from rest_framework.exceptions import NotFound, ParseError
@@ -34,7 +32,7 @@ class MovieViewSet(mixins.CreateModelMixin,
         try:
             return response['title'], response
         except KeyError:
-            raise NotFound(f"no movie matching '{tag}' found")
+            raise NotFound(f"no movie matching \"{tag}\" found")
 
     @staticmethod
     def get_title(request):
