@@ -1,0 +1,38 @@
+version: '3'
+services:
+    django_api:
+        image: django_api:${TAG:-latest}
+        hostname: django_api
+        command: python3 manage.py runserver 0.0.0.0:8000
+        build:
+            context: ../
+            dockerfile: docker/Dockerfile.django
+        depends_on:
+            - postgres_${DOCKER_ENV}
+        volumes:
+            - ../src:/code
+            - ~/:/root
+        env_file:
+            - env/${DOCKER_ENV}.env
+        environment:
+            - DOCKER_HOST_NAME
+            - DJANGO_SETTINGS_MODULE
+            - DATABASE_URL
+        stdin_open: true
+        tty: true
+        ports:
+            - "8000:8000"
+    postgres_dev:
+        container_name: postgres_dev
+        hostname: postgres_dev
+        restart: always
+        image: postgres:latest
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        env_file:
+            - env/dev.env
+        ports:
+            - "5432:5432"
+volumes:
+  pgdata:
+     external: true

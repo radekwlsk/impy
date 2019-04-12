@@ -1,0 +1,17 @@
+FROM python:3.7
+
+RUN mkdir /code
+WORKDIR /code
+COPY requirements.txt /code/
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+
+RUN apt-get update && apt-get install -y --allow-unauthenticated postgresql-client
+
+# postrges freeze prevention
+COPY docker/wait-for-postgres.sh /bin/
+RUN chmod +x /bin/wait-for-postgres.sh
+
+# run
+EXPOSE 8000
+CMD ["python3", "manage.py"]
